@@ -3,10 +3,44 @@ import json
 import sqlite3
 
 
+def menu():
+    ans = True
+    while ans:
+        print("""
+         Welcome to the App Movie Service!
+         Please choose one of the available actions below:
+         1. Find and save information about the films you are interested in.
+         2. Display a list of titles of saved movies.
+         3. Display the best rated IMDB movie.
+         4. Display the highest-grossing movie.
+         5. Display the average rating of saved videos.
+         6. Quit
+         """)
+
+        ans = input('Make your choice: ')
+        if ans == '1':
+            title = input('Enter the name of a movie: ')
+            search_movie(title)
+        elif ans == '2':
+            database = input('Please enter a name for the database without extension: ')
+            # example: movies
+            print_database(database)
+        elif ans == '3':
+            best_rated_imdb()
+        elif ans == '4':
+            highest_grossing_movie()
+        elif ans == '5':
+            average_rating()
+        elif ans == '6':
+            ans = None
+        else:
+            print('\n Not Valid Choice Try again')
+
+
 with open('APIkey.json') as f:  # My personal API
     keys_dict = json.load(f)
     omdbapi = keys_dict['OMDBapi']
-    serviceurl = 'http://
+    serviceurl = 'http://www.omdbapi.com/?'
     apikey = '&apikey=' + omdbapi
 
 
@@ -89,4 +123,40 @@ def save_in_database(json_data):
     con.close()
 
 
+def print_database(database):  # Function to print all contents of the local database
+    conn = sqlite3.connect(str(database))
+    cur = conn.cursor()
+    for row in cur.execute('SELECT * FROM MovieInfo'):
+        print(row)
+    conn.close()
 
+
+def best_rated_imdb(database):
+    conn = sqlite3.connect(str(database))
+    cur = conn.cursor()
+    for row in cur.execute(
+            'SELECT * FROM MovieInfo '
+            'ORDER BY IMDBRating DESC'
+            'LIMIT 5'):
+        print(row)
+    conn.close()
+
+
+def highest_grossing_movie(database):
+    conn = sqlite3.connect(str(database))
+    cur = conn.cursor()
+    for row in cur.execute('SELECT MAX(BoxOffice) FROM MovieInfo'):
+        print(row)
+    conn.close()
+
+
+def average_rating(database):
+    conn = sqlite3.connect(str(database))
+    cur = conn.cursor()
+    for row in cur.execute('SELECT AVG(IMDBRating) FROM MovieInfo'):
+        print(row)
+    conn.close()
+
+
+if __name__ == '__main__':
+    menu()
