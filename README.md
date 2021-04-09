@@ -6,7 +6,7 @@ A python script that allows you to look up movies on IMDB from the command line.
 
 To get started, please download the application. This can be done in the Git repository Clone> Download .zip. Then open a command line, go to the folder containing the main file cmd_imdb.py. Also, the file can be opened in any IDE that you are using.
 
-python cmd_imdb.py
+`python cmd_imdb.py`
 
 ![alt text](output_samples/Output_com_line.png)
 
