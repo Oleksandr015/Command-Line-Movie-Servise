@@ -22,9 +22,7 @@ def menu():
             title = input('Enter the name of a movie: ')
             search_movie(title)
         elif ans == '2':
-            database = input('Please enter a name for the database without extension: ')
-            # example: movies
-            print_database(database)
+            print_database()
         elif ans == '3':
             best_rated_imdb()
         elif ans == '4':
@@ -77,16 +75,16 @@ def print_json(json_data):  # Function for printing a JSON dataset
         'Actors', 'Plot', 'Language', 'Country', 'Awards', 'Ratings', 'BoxOffice',
         'imdbRating', 'imdbVotes', 'imdbID'
     ]
-    print('=' * 100)
+    print('=' * 150)
     for key in list_keys:
         if key in list(json_data.keys()):
             print(f'{key}: {json_data[key]}')
-    print('=' * 100)
+    print('=' * 150)
 
 
 def save_in_database(json_data):
-    filename = input('Please enter a name for the database without extension: ')
-    filename = filename + '.sqlite'
+    filename = input('Please enter a name for the database without extension: ')  # example: movies
+    filename += '.sqlite'
     con = sqlite3.connect(str(filename))  # Create a Connection object
     cur = con.cursor()
 
@@ -99,21 +97,21 @@ def save_in_database(json_data):
     if json_data['Country'] != 'N/A':
         country = json_data['Country']
     if json_data['BoxOffice'] != 'N/A':
-        boxoffice = float(json_data['BoxOffice'])
+       boxoffice = str(json_data['BoxOffice'])
     if json_data['imdbRating'] != 'N/A':
         imdb_rating = float(json_data['imdbRating'])
     else:
-        imdb_rating = -1
+        imdb_rating = 0
 
-    # Create SQL table MovieInfo (movieinfo.sqlite.)
+    # Create SQL table MovieInfo
     cur.execute('''CREATE TABLE IF NOT EXISTS MovieInfo 
-    (Title TEXT, Year INTEGER, Runtime INTEGER, Country TEXT, BoxOffice REAL, IMDBRating REAL)''')
+    (Title TEXT, Year INTEGER, Runtime INTEGER, Country TEXT, BoxOffice REAL, IMDBRating FLOAT)''')
 
     cur.execute('SELECT Title FROM MovieInfo WHERE Title = ? ', (title,))
     row = cur.fetchone()
 
     if row is None:
-        cur.execute('''INSERT INTO MovieInfo (Title, Year, Runtime, Country, BoxOffice, IMDBRating)
+        cur.execute('''INSERT INTO MovieInfo (Title, Year, Runtime, Country, BoxOffice,  IMDBRating)
                 VALUES (?,?,?,?,?,?)''', (title, year, runtime, country, boxoffice, imdb_rating))
     else:
         print('Record already found. No update made.')
@@ -123,40 +121,48 @@ def save_in_database(json_data):
     con.close()
 
 
-def print_database(database):  # Function to print all contents of the local database
-    conn = sqlite3.connect(str(database))
+def print_database():  # Function to print all contents of the local database
+    conn = sqlite3.connect(database_input())
     cur = conn.cursor()
     for row in cur.execute('SELECT * FROM MovieInfo'):
         print(row)
     conn.close()
 
 
-def best_rated_imdb(database):
-    conn = sqlite3.connect(str(database))
+def best_rated_imdb():
+    conn = sqlite3.connect(database_input())
     cur = conn.cursor()
     for row in cur.execute(
-            'SELECT * FROM MovieInfo '
-            'ORDER BY IMDBRating DESC'
-            'LIMIT 5'):
+            'SELECT Title, IMDBRating '
+            'FROM MovieInfo '
+            'ORDER BY IMDBRating DESC '
+            'LIMIT 3'):
         print(row)
     conn.close()
 
 
-def highest_grossing_movie(database):
-    conn = sqlite3.connect(str(database))
+def highest_grossing_movie():
+    conn = sqlite3.connect(database_input())
     cur = conn.cursor()
     for row in cur.execute('SELECT MAX(BoxOffice) FROM MovieInfo'):
         print(row)
     conn.close()
 
 
-def average_rating(database):
-    conn = sqlite3.connect(str(database))
+def average_rating():
+    conn = sqlite3.connect(database_input())
     cur = conn.cursor()
     for row in cur.execute('SELECT AVG(IMDBRating) FROM MovieInfo'):
         print(row)
     conn.close()
 
 
+def database_input():
+    database = input('Please enter a name for the database without extension: ')
+    database += '.sqlite'
+    return database
+
+
 if __name__ == '__main__':
     menu()
+
