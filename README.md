@@ -8,6 +8,7 @@ To get started, please download the application. This can be done in the Git rep
 
 `python cmd_imdb.py`
 
+
 ![alt text](output_samples/Output_com_line.png)
 
 Next, you should be guided by the application menu.
